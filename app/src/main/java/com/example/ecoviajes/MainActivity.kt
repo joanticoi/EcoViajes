@@ -9,39 +9,51 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.ecoviajes.ui.theme.EcoViajesTheme
 
+import android.os.Handler
+import android.os.Looper
+import android.window.SplashScreen
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
+import com.example.ecoviajes.ui.screens.login.LoginScreen
+import com.example.ecoviajes.ui.screens.splash.SplashScreen
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            EcoViajesTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+            MyApp()
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun MyApp() {
+    var showLogin by rememberSaveable{ mutableStateOf(false) }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    EcoViajesTheme {
-        Greeting("Android")
+    val handler = remember { Handler(Looper.getMainLooper()) }
+    LaunchedEffect(Unit) {
+        handler.postDelayed({showLogin = true}, 2000L)
     }
+
+    MaterialTheme{
+        Surface {
+            if (!showLogin) {
+                SplashScreen()
+            } else {
+                LoginScreen()
+
+        }
+        }
+    }
+
 }
