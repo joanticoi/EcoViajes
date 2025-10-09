@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "462498713867",
+    "project_id": "ecoviajes-787bf",
+    "storage_bucket": "ecoviajes-787bf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:462498713867:android:f079cbc5a751cfbc64120e",
+        "android_client_info": {
+          "package_name": "com.example.ecoviajes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCls4_eLOKT5AZTD1ZOzA9Z7P19PubZLek"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
