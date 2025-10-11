@@ -15,15 +15,17 @@ import androidx.compose.ui.text.input.KeyboardType //Controlar el tipo de entrad
 import androidx.compose.ui.text.input.PasswordVisualTransformation //Ocultar la contraseña al escribirla
 import androidx.compose.ui.unit.dp //Controlar el tamaño de los elementos
 import androidx.compose.ui.graphics.Color //Controlar el color de los elementos
-
+import androidx.lifecycle.viewmodel
+import com.example.ecoviajes.viewmodel.LoginViewModel
 @Composable
 fun LoginScreen() {
     //Variable para obtener en tiempo de ejecución el estado del ciclo de vida de app
     val context = LocalContext.current
 
     //Variable para almacenar en nombre del usuario
-    var user by remember { mutableStateOf("") }
+    var correo by remember { mutableStateOf("") }
 
+    val viewModel:
     //Variable para almacenar la clave del usuario
     var pass by remember { mutableStateOf("") }
 

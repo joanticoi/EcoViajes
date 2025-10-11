@@ -70,4 +70,7 @@ dependencies {
     implementation("com.google.firebase:firebase-crashlytics-ktx")
     //kotlix-coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
+
+    //viewmodel-lifecycle-compose
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
 }
