@@ -15,7 +15,7 @@ import androidx.compose.ui.text.input.KeyboardType //Controlar el tipo de entrad
 import androidx.compose.ui.text.input.PasswordVisualTransformation //Ocultar la contraseña al escribirla
 import androidx.compose.ui.unit.dp //Controlar el tamaño de los elementos
 import androidx.compose.ui.graphics.Color //Controlar el color de los elementos
-import androidx.lifecycle.viewmodel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ecoviajes.viewmodel.LoginViewModel
 @Composable
 fun LoginScreen() {
@@ -25,10 +25,22 @@ fun LoginScreen() {
     //Variable para almacenar en nombre del usuario
     var correo by remember { mutableStateOf("") }
 
-    val viewModel:
+
     //Variable para almacenar la clave del usuario
     var pass by remember { mutableStateOf("") }
 
+    val viewModel: LoginViewModel =viewModel()
+    val user by viewModel.carga.collectAsState()
+
+    LaunchedEffect(user) {
+        user?.let {
+            val mensaje = when(it.rol){
+                "admin" -> "Bienvenido admin: ${it.nombre}"
+                else -> "bienvenido: ${it.nombre}"
+            }
+            Toast.makeText(context, mensaje, Toast.LENGTH_LONG).show()
+        }
+    }
     //Configuración para organizar los elementos de la pantalla usando el componente Column()
     Column (
         modifier = Modifier
@@ -48,8 +60,8 @@ fun LoginScreen() {
         //Componente tipo OutlinedTextField() para ingresar datos por usuario
         OutlinedTextField(
             //Variable para el nombre del usuario
-            value = user,
-            onValueChange = { user = it },
+            value = correo,
+            onValueChange = { correo = it },
             label = { Text("Usuario", color = Color(0xFFFF5722))},
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
@@ -76,11 +88,19 @@ fun LoginScreen() {
         //Componente Button() para agrega un boton
         Button(
             onClick = {
-                Toast.makeText(context, "Bienvenido $user", Toast.LENGTH_SHORT).show()
+                if(correo.isEmpty() || pass.isEmpty()){
+                    Toast.makeText(context, "Bienvenido $correo", Toast.LENGTH_SHORT).show()
+                }
+                viewModel.login(correo, pass)
             },
             modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF81154C), contentColor = Color(0xFFC7F9CC))
-        ) {
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF81154C), contentColor = Color(0xFFC7F9CC)),
+            enabled = !carga
+        )
+        {
+            if(carga){
+                CircularProgressIndicator(modifier = Modifier.size(16.dp), color = Color.Gray)
+            }
             Text("Entrar")
         }
     }
