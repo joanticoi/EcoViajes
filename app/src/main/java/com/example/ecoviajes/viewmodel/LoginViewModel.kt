@@ -24,6 +24,13 @@ class LoginViewModel : ViewModel (){
         _carga.value = true
 
         viewModelScope.launch {
+            try{
+                _user.value = repositorio.login(correo, clave)
+            } catch (e: Exception) {
+                _user.value = null
+            } finally {
+                _carga.value = false
+            }
             _user.value = repositorio.login(correo, clave)
             _carga.value = false
         }

@@ -16,31 +16,41 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation //Ocultar la 
 import androidx.compose.ui.unit.dp //Controlar el tamaño de los elementos
 import androidx.compose.ui.graphics.Color //Controlar el color de los elementos
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.ecoviajes.repository.AuthRepository
 import com.example.ecoviajes.viewmodel.LoginViewModel
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    onRegisterClick: () -> Unit = {},
+    onLoginSuccess: (user: com.example.ecoviajes.model.User) -> Unit = {}
+) {
     //Variable para obtener en tiempo de ejecución el estado del ciclo de vida de app
     val context = LocalContext.current
 
-    //Variable para almacenar en nombre del usuario
+    //Variable para almacenar en nombre del usuario ** cabiar correo
     var correo by remember { mutableStateOf("") }
-
 
     //Variable para almacenar la clave del usuario
     var pass by remember { mutableStateOf("") }
 
     val viewModel: LoginViewModel =viewModel()
-    val user by viewModel.carga.collectAsState()
+    val user by viewModel.user.collectAsState()
+    val carga by viewModel.carga.collectAsState()
 
+    //Establecer conexión con Auth
+    val repositorio = AuthRepository()
+
+    //Observar cuando el usuario este logueado
     LaunchedEffect(user) {
         user?.let {
-            val mensaje = when(it.rol){
-                "admin" -> "Bienvenido admin: ${it.nombre}"
-                else -> "bienvenido: ${it.nombre}"
+            val mensaje = when (it.rol) {
+                "admin" -> "Bienvenido Admin: ${it.nombre}"
+                else -> "Bienvenido: ${it.nombre}"
             }
             Toast.makeText(context, mensaje, Toast.LENGTH_LONG).show()
+            onLoginSuccess(it)
         }
     }
+
     //Configuración para organizar los elementos de la pantalla usando el componente Column()
     Column (
         modifier = Modifier
@@ -62,7 +72,7 @@ fun LoginScreen() {
             //Variable para el nombre del usuario
             value = correo,
             onValueChange = { correo = it },
-            label = { Text("Usuario", color = Color(0xFFFF5722))},
+            label = { Text("Correo", color = Color(0xFFFF5722))},
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
@@ -88,8 +98,9 @@ fun LoginScreen() {
         //Componente Button() para agrega un boton
         Button(
             onClick = {
-                if(correo.isEmpty() || pass.isEmpty()){
-                    Toast.makeText(context, "Bienvenido $correo", Toast.LENGTH_SHORT).show()
+                if (correo.isEmpty() || pass.isEmpty()) {
+                    Toast.makeText(context, "Complete todos los campos", Toast.LENGTH_SHORT).show()
+                    return@Button
                 }
                 viewModel.login(correo, pass)
             },
@@ -98,10 +109,18 @@ fun LoginScreen() {
             enabled = !carga
         )
         {
-            if(carga){
+            if(carga) {
                 CircularProgressIndicator(modifier = Modifier.size(16.dp), color = Color.Gray)
             }
             Text("Entrar")
+        }
+
+        //Boton para registro
+        Spacer(Modifier.height(30.dp))
+
+        TextButton(onClick = onRegisterClick) {
+            Text("¿No tienes cuenta? Registrate aquí",
+                color = Color(0xFF81154C))
         }
     }
 }

@@ -12,37 +12,28 @@ class AuthRepository{
 
     suspend fun login(correo: String, clave: String): User?{
         return try{
-            //int
-            val resultado = auth.signInWithEmailAndPassword( correo,clave).await()
-            val user = resultado.user
-            if (user != null){
-                getUserFromFirestore(user.uid, correo) ?: User (
-                    correo = correo,
-                    nombre = if(correo == "admin@ecoviajes.cl") "administrador" else "usuario",
-                    rol = if (correo == "admin@ecoviajes.cl" ) "admin" else "cliente"
-                )
-            }else null
+            //intentar autenticar con auth
+            when {
+                correo == "admin@ecoviajes.cl" -> {
+                    //Autenticacion con Firebase auth
+                    val resultado = auth.signInWithEmailAndPassword(correo, clave).await()
+                    User(
+                        correo = correo,
+                        nombre = "Administrador",
+                        rol = "admin"
+                    )
+                }
+            else -> {
+                //Autenticacion con la coleccion usuario de Firestore
+                loginWithFirestore(correo,clave)
+            }
+            }
 
         } catch (e: Exception){
-            loginWithFirestore( correo, clave)
-        }
-    }
-    private suspend fun getUserFromFirestore(uid: String, correo: String): User? {
-        return try {
-            val doc = db.collection("usuario").document().get().await()
-            if (doc.exists()) {
-                User(
-                    correo = doc.getString("correo") ?: correo,
-                    nombre = doc.getString("nombre") ?: "Usuario",
-                    rol = doc.getString("rol") ?: "cliente"
-                )
-            }else null
-
-
-        } catch (e: Exception) {
             null
         }
     }
+
     private suspend fun loginWithFirestore(correo: String, clave: String): User? {
         return try{
             val query =db.collection("usuario")
@@ -56,6 +47,7 @@ class AuthRepository{
                 User(
                     correo = doc.getString("correo") ?: " ",
                     nombre = doc.getString("nombre") ?: "cliente",
+                    clave = doc.getString("clave") ?: "",
                     rol = doc.getString("rol") ?: "cliente"
                 )
             }else null

@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.fir.references.builder.buildImplicitThisReference
+import org.jetbrains.kotlin.gradle.utils.IMPLEMENTATION
 
 plugins {
     alias(libs.plugins.android.application)
@@ -73,4 +74,7 @@ dependencies {
 
     //viewmodel-lifecycle-compose
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+
+    //Navigation compose
+    implementation("androidx.navigation:navigation-compose:2.7.6")
 }
