@@ -14,7 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.nombrecaso.viewmodel.CarritoViewModel
+import com.example.ecoviajes.viewmodel.CarritoViewModel
 
 @Composable
 fun CarritoScreen(
@@ -173,7 +173,7 @@ fun CarritoScreen(
 
 @Composable
 fun ItemCarrito(
-    item: com.example.nombrecaso.model.ItemCarrito,
+    item: com.example.ecoviajes.model.ItemCarrito,
     onEliminar: () -> Unit
 ) {
     Card(

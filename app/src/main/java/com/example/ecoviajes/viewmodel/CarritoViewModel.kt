@@ -2,9 +2,9 @@ package com.example.ecoviajes.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.nombrecaso.model.ItemCarrito
-import com.example.nombrecaso.model.Producto
-import com.example.nombrecaso.repository.ProductoRepository
+import com.example.ecoviajes.model.ItemCarrito
+import com.example.ecoviajes.model.Producto
+import com.example.ecoviajes.repository.ProductoRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

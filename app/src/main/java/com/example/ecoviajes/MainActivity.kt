@@ -26,7 +26,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import com.example.ecoviajes.ui.screens.login.LoginScreen
 import com.example.ecoviajes.ui.screens.splash.SplashScreen
-import com.example.nombrecaso.navigation.AppNavegacion
+import com.example.ecoviajes.navigation.AppNavegacion
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
