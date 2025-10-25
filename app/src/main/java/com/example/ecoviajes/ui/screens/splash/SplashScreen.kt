@@ -93,7 +93,7 @@ fun SplashScreen(
         )
     ) {
         Image(
-            painter = painterResource(id = R.drawable.logo), // Asegúrate de tener el logo en tu drawable
+            painter = painterResource(id = R.drawable.logo2), // Asegúrate de tener el logo en tu drawable
             contentDescription = "Logo anima",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Fit
