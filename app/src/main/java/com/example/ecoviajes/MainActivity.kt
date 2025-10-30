@@ -56,18 +56,18 @@ class MainActivity : ComponentActivity() {
 
 
 fun createNotificationChannel(context: Context) {
-    // Los canales solo son necesarios para API 26+
+   
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         val name = "Notificaciones Generales"
         val descriptionText = "Canal para notificaciones"
         val importance = NotificationManager.IMPORTANCE_DEFAULT
 
-        // Crea el canal
+
         val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
             description = descriptionText
         }
 
-        // Registra el canal en el sistema
+
         val notificationManager: NotificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -80,7 +80,7 @@ fun showBasicNotification(context: Context) {
 
     val notificationId = 1
 
-    
+
 
     // Intención para abrir tu MainActivity (o la pantalla que desees)
     val intent = Intent(context, MainActivity::class.java).apply {
@@ -90,13 +90,13 @@ fun showBasicNotification(context: Context) {
 
     // construyendo notificacion
 
-    val builder = NotificationCompat.Builder(context, CHANNEL_ID) // Usa el mismo CHANNEL_ID
-        .setSmallIcon(R.drawable.logo2) // !! Requerido: Tu ícono (en res/drawable)
+    val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+        .setSmallIcon(R.drawable.logo2)
         .setContentTitle("Encuentra tu nuevo destino!")
         .setContentText("Visita nuestra app para conocer tu destino soñado")
-        .setPriority(NotificationCompat.PRIORITY_DEFAULT) // Prioridad para Android 7.1 e inferiores
-        .setContentIntent(pendingIntent) // Acción al tocar
-        .setAutoCancel(true) // Elimina la notificación al tocarla
+        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+        .setContentIntent(pendingIntent)
+        .setAutoCancel(true)
 
 
     // -mostrar
