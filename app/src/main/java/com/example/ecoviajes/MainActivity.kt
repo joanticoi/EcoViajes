@@ -1,5 +1,15 @@
 package com.example.ecoviajes
 
+import androidx.compose.ui.platform.LocalContext
+import android.Manifest
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -27,6 +37,11 @@ import androidx.compose.runtime.LaunchedEffect
 import com.example.ecoviajes.ui.screens.login.LoginScreen
 import com.example.ecoviajes.ui.screens.splash.SplashScreen
 import com.example.ecoviajes.navigation.AppNavegacion
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build
+
+private const val CHANNEL_ID= "mi_canal_id"
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,6 +53,71 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
+
+fun createNotificationChannel(context: Context) {
+    // Los canales solo son necesarios para API 26+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val name = "Notificaciones Generales"
+        val descriptionText = "Canal para notificaciones"
+        val importance = NotificationManager.IMPORTANCE_DEFAULT
+
+        // Crea el canal
+        val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+            description = descriptionText
+        }
+
+        // Registra el canal en el sistema
+        val notificationManager: NotificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        notificationManager.createNotificationChannel(channel)
+    }
+}
+
+fun showBasicNotification(context: Context) {
+
+
+    val notificationId = 1
+
+    
+
+    // Intención para abrir tu MainActivity (o la pantalla que desees)
+    val intent = Intent(context, MainActivity::class.java).apply {
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+    }
+    val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
+    // construyendo notificacion
+
+    val builder = NotificationCompat.Builder(context, CHANNEL_ID) // Usa el mismo CHANNEL_ID
+        .setSmallIcon(R.drawable.logo2) // !! Requerido: Tu ícono (en res/drawable)
+        .setContentTitle("Encuentra tu nuevo destino!")
+        .setContentText("Visita nuestra app para conocer tu destino soñado")
+        .setPriority(NotificationCompat.PRIORITY_DEFAULT) // Prioridad para Android 7.1 e inferiores
+        .setContentIntent(pendingIntent) // Acción al tocar
+        .setAutoCancel(true) // Elimina la notificación al tocarla
+
+
+    // -mostrar
+
+    val notificationManager = NotificationManagerCompat.from(context)
+
+    // permisos
+    if (ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.POST_NOTIFICATIONS
+        ) != PackageManager.PERMISSION_GRANTED
+    ) {
+
+        return
+    }
+
+    // mostrar notificacion
+
+    notificationManager.notify(notificationId, builder.build())
+
+}
 @Composable
 fun MyApp() {
     var showLogin by rememberSaveable{ mutableStateOf(false) }
@@ -51,11 +131,17 @@ fun MyApp() {
         Surface {
             if (!showLogin) {
                 SplashScreen()
+                createNotificationChannel(LocalContext.current)
+                showBasicNotification(LocalContext.current)
+
+
+
             } else {
                 AppNavegacion()
 
-        }
+            }
         }
     }
 
 }
+
