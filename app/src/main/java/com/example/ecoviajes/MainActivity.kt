@@ -56,7 +56,7 @@ class MainActivity : ComponentActivity() {
 
 
 fun createNotificationChannel(context: Context) {
-   
+
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         val name = "Notificaciones Generales"
         val descriptionText = "Canal para notificaciones"
