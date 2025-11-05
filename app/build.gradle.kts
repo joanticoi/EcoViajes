@@ -83,4 +83,9 @@ dependencies {
     //material-Icons-extended
     implementation("androidx.compose.material:material-icons-extended:1.7.7")
 
+    // Mostrar imágenes (para la vista previa de galería/cámara)
+    implementation("io.coil-kt:coil-compose:2.6.0")
+    // snapshotFlow y corrutinas base
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+
 }
