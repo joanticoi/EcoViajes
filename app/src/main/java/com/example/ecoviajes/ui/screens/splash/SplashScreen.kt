@@ -26,7 +26,7 @@ fun SplashScreen(
     // Duración total en milisegundos
     val duration = 800
 
-    // Definimos keyframes como Triple<Int, Float, Float> (tiempo, skewX, skewY)
+
     val keyframes = listOf(
         Triple(0, 0f, 0f),
         Triple(240, -25f, -25f),  // 30%
@@ -37,7 +37,7 @@ fun SplashScreen(
         Triple(800, 0f, 0f)       // 100%
     )
 
-    // Animatable para skewX y skewY
+
     val skewX = remember { Animatable(0f) }
     val skewY = remember { Animatable(0f) }
 
@@ -48,7 +48,7 @@ fun SplashScreen(
                 val (timeEnd, endX, endY) = keyframes[i + 1]
                 val segmentDuration = timeEnd - timeStart
 
-                // Animamos ambos valores simultáneamente con coroutineScope
+
                 coroutineScope {
                     val animX = async {
                         skewX.animateTo(
@@ -68,7 +68,7 @@ fun SplashScreen(
                             )
                         )
                     }
-                    // Esperamos a que terminen ambas animaciones
+
                     animX.await()
                     animY.await()
                 }
@@ -79,11 +79,11 @@ fun SplashScreen(
     // Función para convertir grados a radianes (Double)
     fun degToRad(deg: Float) = deg * (Math.PI / 180.0)
 
-    // Construir las transformaciones usando rotación y escalado en X y Y
+
     val skewXRad = tan(degToRad(skewX.value))
     val skewYRad = tan(degToRad(skewY.value))
 
-    // Se aplican los valores de transformación usando gráficos y no la matriz
+
     Box(
         modifier = modifier.graphicsLayer(
             transformOrigin = TransformOrigin(0.5f, 0.5f),
