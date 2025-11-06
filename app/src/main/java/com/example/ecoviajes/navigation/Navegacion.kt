@@ -11,11 +11,9 @@ import com.example.ecoviajes.ui.screens.login.LoginScreen
 import com.example.ecoviajes.ui.screens.registro.RegistroScreen
 import com.example.ecoviajes.ui.screens.perfil.PerfilAdminScreen
 import com.example.ecoviajes.ui.screens.perfil.PerfilClienteScreen
-
 import com.example.ecoviajes.ui.screens.carrito.CarritoScreen
 import com.example.ecoviajes.ui.screens.Pago.PagoConfirmacionScreen
 import com.example.ecoviajes.viewmodel.CarritoViewModel
-
 
 @Composable
 fun AppNavegacion() {
@@ -26,13 +24,13 @@ fun AppNavegacion() {
         navController = navController,
         startDestination = "login"
     ) {
+        // 🟢 Pantalla de Login
         composable("login") {
             LoginScreen(
                 onRegisterClick = {
                     navController.navigate("register")
                 },
                 onLoginSuccess = { user ->
-                    // Navegar según el rol pasando el nombre como parámetro
                     when (user.rol) {
                         "admin" -> navController.navigate("perfil_admin/${user.nombre}")
                         else -> navController.navigate("perfil_cliente/${user.nombre}")
@@ -41,6 +39,7 @@ fun AppNavegacion() {
             )
         }
 
+        // 🟢 Registro
         composable("register") {
             RegistroScreen(
                 onBack = { navController.popBackStack() },
@@ -50,6 +49,7 @@ fun AppNavegacion() {
             )
         }
 
+        // 🟢 Perfil del Administrador
         composable(
             "perfil_admin/{nombre}",
             arguments = listOf(navArgument("nombre") { type = NavType.StringType })
@@ -58,14 +58,14 @@ fun AppNavegacion() {
             PerfilAdminScreen(
                 nombre = nombre,
                 onLogout = {
-                    // Volver al login limpiando el back stack
                     navController.navigate("login") {
-                        popUpTo(0) { inclusive = true}
+                        popUpTo(0) { inclusive = true }
                     }
                 }
             )
         }
 
+        // 🟢 Perfil del Cliente
         composable(
             "perfil_cliente/{nombre}",
             arguments = listOf(navArgument("nombre") { type = NavType.StringType })
@@ -74,25 +74,28 @@ fun AppNavegacion() {
             PerfilClienteScreen(
                 nombre = nombre,
                 onLogout = {
-
-                    // Volver al login limpiando el back stack
                     navController.navigate("login") {
                         popUpTo(0) { inclusive = true }
                     }
-                }, //Agregar navegacion al carrito
-                onVerCarrito = {
-                    navController.navigate("carrito")
                 },
+                onVerCarrito = { navController.navigate("carrito") },
+                // 👇 NUEVO: ahora abre la caja de comentarios
+                onVerComentarios = { navController.navigate("comentarios") },
                 viewModel = carritoViewModel
             )
         }
 
-        //Agregar pantalla de carrito
+        // 🟢 Pantalla de Comentarios
+        composable("comentarios") {
+            com.example.ecoviajes.ui.screens.comentarios.ComentariosScreen(
+                onVolver = { navController.popBackStack() }
+            )
+        }
+
+        // 🟢 Carrito de compras
         composable("carrito") {
             CarritoScreen(
-                onVolverAlCatalogo = {
-                    navController.popBackStack()
-                },
+                onVolverAlCatalogo = { navController.popBackStack() },
                 onConfirmarPago = {
                     navController.navigate("pago") {
                         popUpTo("perfil_cliente") { inclusive = false }
@@ -102,15 +105,13 @@ fun AppNavegacion() {
             )
         }
 
-        // Agregar pantalla de confirmación de pago
-        composable("pago") { backStackEntry ->
-            // Obtener el nombre del usuario de alguna manera
-            // Por ahora usamos un valor por defecto
+        // 🟢 Confirmación de pago
+        composable("pago") {
             PagoConfirmacionScreen(
                 nombreUsuario = "Cliente",
                 onVolverAlPerfil = {
                     navController.navigate("perfil_cliente/Cliente") {
-                        popUpTo("login") { inclusive = false}
+                        popUpTo("login") { inclusive = false }
                     }
                 }
             )

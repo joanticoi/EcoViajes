@@ -9,72 +9,48 @@ import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.ecoviajes.ui.theme.EcoViajesTheme
-
+import androidx.compose.runtime.*
 import android.os.Handler
 import android.os.Looper
-import android.window.SplashScreen
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
-import com.example.ecoviajes.ui.screens.login.LoginScreen
 import com.example.ecoviajes.ui.screens.splash.SplashScreen
-import com.example.ecoviajes.navigation.AppNavegacion
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
-
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.core.content.ContextCompat
+import com.example.ecoviajes.navigation.AppNavegacion
 
-private const val CHANNEL_ID= "mi_canal_id"
+private const val CHANNEL_ID = "mi_canal_id"
 
 class MainActivity : ComponentActivity() {
 
-    // 2. DEFINIR EL LANZADOR PARA LA SOLICITUD DE PERMISO
+    // Lanzador para solicitar permiso de notificaciones
     private val requestPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
-            if (isGranted) {
-
-            } else {
-
-            }
+            // Puedes manejar la respuesta aquí si lo deseas
         }
 
-
     private fun askNotificationPermission() {
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(
                     this,
                     Manifest.permission.POST_NOTIFICATIONS
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
-                // Pedir el permiso
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,37 +65,32 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
-
+// 🔔 Canal de notificaciones
 fun createNotificationChannel(context: Context) {
-
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         val name = "Notificaciones Generales"
-        val descriptionText = "Canal para notificaciones"
+        val descriptionText = "Canal para notificaciones de EcoViajes"
         val importance = NotificationManager.IMPORTANCE_DEFAULT
-
 
         val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
             description = descriptionText
         }
 
-
         val notificationManager: NotificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
         notificationManager.createNotificationChannel(channel)
     }
 }
 
-
+// 📣 Función para mostrar una notificación simple
 fun showBasicNotification(context: Context, title: String, content: String) {
-
     val notificationId = 1
 
     val intent = Intent(context, MainActivity::class.java).apply {
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
     }
-    val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+    val pendingIntent: PendingIntent =
+        PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
     val builder = NotificationCompat.Builder(context, CHANNEL_ID)
         .setSmallIcon(R.drawable.logo2)
@@ -131,52 +102,49 @@ fun showBasicNotification(context: Context, title: String, content: String) {
 
     val notificationManager = NotificationManagerCompat.from(context)
 
-
     if (ActivityCompat.checkSelfPermission(
             context,
             Manifest.permission.POST_NOTIFICATIONS
         ) != PackageManager.PERMISSION_GRANTED
     ) {
-
         return
     }
 
     notificationManager.notify(notificationId, builder.build())
-
 }
+
+// 🌍 Punto de entrada Compose
 @Composable
 fun MyApp() {
-    var showLogin by rememberSaveable{ mutableStateOf(false) }
+    var showLogin by rememberSaveable { mutableStateOf(false) }
 
     val handler = remember { Handler(Looper.getMainLooper()) }
     val context = LocalContext.current
 
+    // Mostrar login después del splash
     LaunchedEffect(Unit) {
-        handler.postDelayed({showLogin = true}, 2000L)
+        handler.postDelayed({ showLogin = true }, 2000L)
     }
 
-    MaterialTheme{
+    MaterialTheme {
         Surface {
             if (!showLogin) {
                 SplashScreen()
 
-
+                // Mostrar notificación luego del splash
                 LaunchedEffect(Unit) {
-                    // Esperamos un poco más para que no salga sobre el splash
                     handler.postDelayed({
                         showBasicNotification(
                             context,
-                            "Encuentra tu nuevo destino!",
-                            "Visita nuestra app para conocer tu destino soñado"
+                            "¡Encuentra tu nuevo destino!",
+                            "Visita nuestra app para conocer tu destino soñado 🌎"
                         )
-                    }, 2100L) // 2.1 segundos
+                    }, 2100L)
                 }
-
             } else {
+                // ✅ Aquí cargamos la navegación completa de la app
                 AppNavegacion()
-
             }
         }
     }
-
 }

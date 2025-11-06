@@ -27,6 +27,7 @@ fun PerfilClienteScreen(
     nombre: String = "Cliente",
     onLogout: () -> Unit = {},
     onVerCarrito: () -> Unit = {},
+    onVerComentarios: () -> Unit = {}, // 👈 NUEVO parámetro
     viewModel: CarritoViewModel
 ) {
     val productos by viewModel.productos.collectAsState()
@@ -51,7 +52,8 @@ fun PerfilClienteScreen(
         }
     ) { padding ->
         Column(Modifier.padding(padding)) {
-            // Tarjeta con cámara/galería
+
+            // 🟩 Tarjeta superior con acciones del usuario
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -66,14 +68,38 @@ fun PerfilClienteScreen(
                     Spacer(Modifier.height(6.dp))
                     Text("Comparte una foto o elige una de tu galería.")
                     Spacer(Modifier.height(12.dp))
-                    com.example.ecoviajes.ui.components.PhotoActions { /* opcional: subir */ }
+                    PhotoActions { /* Puedes dejarlo vacío o hacer algo con la URI si quieres */ }
+
+                    Spacer(Modifier.height(12.dp))
+
+
+                    // 🟩 Botón: Deja tu comentario ✍️
+                    Button(
+                        onClick = onVerComentarios,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF0288D1)
+                        )
+                    ) {
+                        Text("Deja tu comentario ✍️")
+                    }
+
                     Spacer(Modifier.height(8.dp))
-                    TextButton(onClick = onLogout, modifier = Modifier.align(Alignment.End)) {
+
+                    // 🟥 Botón: Cerrar sesión
+                    OutlinedButton(
+                        onClick = onLogout,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = Color(0xFFD32F2F)
+                        )
+                    ) {
                         Text("Cerrar Sesión")
                     }
                 }
             }
 
+            // 🟢 Lista de experiencias
             Text(
                 "Experiencias disponibles",
                 style = MaterialTheme.typography.titleMedium,
@@ -114,7 +140,7 @@ fun PerfilClienteScreen(
 
 @Composable
 private fun ItemExperiencia(
-    producto: com.example.ecoviajes.model.Producto,
+    producto: Producto,
     cantidadEnCarrito: Int,
     onAgregar: () -> Unit,
     onRemover: () -> Unit
@@ -126,9 +152,8 @@ private fun ItemExperiencia(
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(Modifier.padding(16.dp)) {
-
             if (producto.imagen.isNotBlank()) {
-                coil.compose.AsyncImage(
+                AsyncImage(
                     model = producto.imagen,
                     contentDescription = producto.nombre,
                     modifier = Modifier
@@ -146,7 +171,6 @@ private fun ItemExperiencia(
 
             Spacer(Modifier.height(4.dp))
 
-            // CLP sin decimales
             Text(
                 text = "$${"%,.0f".format(producto.precio)}",
                 style = MaterialTheme.typography.bodyLarge,
@@ -156,7 +180,6 @@ private fun ItemExperiencia(
 
             Spacer(Modifier.height(6.dp))
 
-            // Stock -> Cupos
             when {
                 producto.stock <= 0 ->
                     Text("Sin cupos", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
@@ -182,7 +205,6 @@ private fun ItemExperiencia(
                         IconButton(
                             onClick = {
                                 onAgregar()
-                                // 1. ACTUALIZAR LLAMADA AQUÍ
                                 showBasicNotification(
                                     context,
                                     "¡Experiencia agregada!",
@@ -199,7 +221,6 @@ private fun ItemExperiencia(
                 Button(
                     onClick = {
                         onAgregar()
-                        // 2. ACTUALIZAR LLAMADA AQUÍ
                         showBasicNotification(
                             context,
                             "¡Experiencia agregada!",
@@ -211,7 +232,9 @@ private fun ItemExperiencia(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF0288D1)
                     )
-                ) { Text(if (producto.stock > 0) "Reservar" else "Sin cupos") }
+                ) {
+                    Text(if (producto.stock > 0) "Reservar" else "Sin cupos")
+                }
             }
         }
     }
