@@ -86,7 +86,6 @@ fun showBasicNotification(context: Context, title: String, content: String) {
     }
     val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
-    // construyendo notificacion
 
     val builder = NotificationCompat.Builder(context, CHANNEL_ID)
         .setSmallIcon(R.drawable.logo2)
