@@ -14,10 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import coil.compose.AsyncImage
 import com.example.ecoviajes.model.Producto
 import com.example.ecoviajes.ui.components.PhotoActions
 import com.example.ecoviajes.viewmodel.CarritoViewModel
+import com.example.ecoviajes.showBasicNotification
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -117,6 +119,8 @@ private fun ItemExperiencia(
     onAgregar: () -> Unit,
     onRemover: () -> Unit
 ) {
+    val context = LocalContext.current
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(2.dp)
@@ -175,14 +179,33 @@ private fun ItemExperiencia(
                         IconButton(onClick = onRemover, enabled = cantidadEnCarrito > 0) {
                             Icon(Icons.Outlined.Remove, contentDescription = "Quitar uno")
                         }
-                        IconButton(onClick = onAgregar, enabled = producto.stock > cantidadEnCarrito) {
+                        IconButton(
+                            onClick = {
+                                onAgregar()
+                                // 1. ACTUALIZAR LLAMADA AQUÍ
+                                showBasicNotification(
+                                    context,
+                                    "¡Experiencia agregada!",
+                                    "Paga tu compra para poder viajar."
+                                )
+                            },
+                            enabled = producto.stock > cantidadEnCarrito
+                        ) {
                             Icon(Icons.Default.Add, contentDescription = "Agregar uno")
                         }
                     }
                 }
             } else {
                 Button(
-                    onClick = onAgregar,
+                    onClick = {
+                        onAgregar()
+                        // 2. ACTUALIZAR LLAMADA AQUÍ
+                        showBasicNotification(
+                            context,
+                            "¡Experiencia agregada!",
+                            "Paga tu compra para poder viajar."
+                        )
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = producto.stock > 0,
                     colors = ButtonDefaults.buttonColors(

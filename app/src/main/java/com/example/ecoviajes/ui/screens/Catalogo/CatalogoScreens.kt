@@ -11,10 +11,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.ecoviajes.showBasicNotification
 import com.example.ecoviajes.viewmodel.CarritoViewModel
 
 @Composable
@@ -92,6 +94,8 @@ fun ProductoItem(
     onEliminar: () -> Unit,
     cantidadEnCarrito: Int
 ) {
+    val context = LocalContext.current
+
     Card(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -146,14 +150,30 @@ fun ProductoItem(
                         )
 
                         IconButton(
-                            onClick = onAgregar,
+                            onClick = {
+                                onAgregar()
+                                // 1. ACTUALIZAR LLAMADA AQUÍ
+                                showBasicNotification(
+                                    context,
+                                    "¡Producto agregado!",
+                                    "Paga tu compra para poder viajar."
+                                )
+                            },
                             modifier = Modifier.size(32.dp)
                         ) {
                             Icon(Icons.Default.Add, contentDescription = "Agregar")
                         }
                     }
                 } else {
-                    Button(onClick = onAgregar) {
+                    Button(onClick = {
+                        onAgregar()
+                        // 2. ACTUALIZAR LLAMADA AQUÍ
+                        showBasicNotification(
+                            context,
+                            "¡Producto agregado!",
+                            "Paga tu compra para poder viajar."
+                        )
+                    }) {
                         Text("Agregar al carrito")
                     }
                 }

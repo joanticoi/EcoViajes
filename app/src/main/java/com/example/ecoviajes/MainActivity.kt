@@ -75,12 +75,10 @@ fun createNotificationChannel(context: Context) {
     }
 }
 
-fun showBasicNotification(context: Context) {
-
+// 1. MODIFICAR LA FIRMA DE LA FUNCIÓN
+fun showBasicNotification(context: Context, title: String, content: String) {
 
     val notificationId = 1
-
-
 
     // Intención para abrir tu MainActivity (o la pantalla que desees)
     val intent = Intent(context, MainActivity::class.java).apply {
@@ -92,8 +90,9 @@ fun showBasicNotification(context: Context) {
 
     val builder = NotificationCompat.Builder(context, CHANNEL_ID)
         .setSmallIcon(R.drawable.logo2)
-        .setContentTitle("Encuentra tu nuevo destino!")
-        .setContentText("Visita nuestra app para conocer tu destino soñado")
+        // 2. USAR LOS PARÁMETROS
+        .setContentTitle(title)
+        .setContentText(content)
         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         .setContentIntent(pendingIntent)
         .setAutoCancel(true)
@@ -132,9 +131,12 @@ fun MyApp() {
             if (!showLogin) {
                 SplashScreen()
                 createNotificationChannel(LocalContext.current)
-                showBasicNotification(LocalContext.current)
-
-
+                // 3. ACTUALIZAR LA LLAMADA CON EL TEXTO ORIGINAL
+                showBasicNotification(
+                    LocalContext.current,
+                    "Encuentra tu nuevo destino!",
+                    "Visita nuestra app para conocer tu destino soñado"
+                )
 
             } else {
                 AppNavegacion()
@@ -144,4 +146,3 @@ fun MyApp() {
     }
 
 }
-
