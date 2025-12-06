@@ -14,23 +14,31 @@ import com.example.ecoviajes.ui.screens.perfil.PerfilClienteScreen
 import com.example.ecoviajes.ui.screens.carrito.CarritoScreen
 import com.example.ecoviajes.ui.screens.Pago.PagoConfirmacionScreen
 import com.example.ecoviajes.viewmodel.CarritoViewModel
+import com.example.ecoviajes.ui.screens.perfil.PerfilEditarScreen
+import com.example.ecoviajes.viewmodel.PerfilViewModel
+
 
 @Composable
 fun AppNavegacion() {
     val navController = rememberNavController()
     val carritoViewModel: CarritoViewModel = viewModel()
+    val perfilViewModel: PerfilViewModel = viewModel()
 
     NavHost(
         navController = navController,
         startDestination = "login"
     ) {
         // 🟢 Pantalla de Login
+
         composable("login") {
             LoginScreen(
                 onRegisterClick = {
                     navController.navigate("register")
                 },
                 onLoginSuccess = { user ->
+
+                    perfilViewModel.inicializar(user.correo)
+
                     when (user.rol) {
                         "admin" -> navController.navigate("perfil_admin/${user.nombre}")
                         else -> navController.navigate("perfil_cliente/${user.nombre}")
@@ -38,6 +46,7 @@ fun AppNavegacion() {
                 }
             )
         }
+
 
         // 🟢 Registro
         composable("register") {
@@ -66,11 +75,9 @@ fun AppNavegacion() {
         }
 
         // 🟢 Perfil del Cliente
-        composable(
-            "perfil_cliente/{nombre}",
-            arguments = listOf(navArgument("nombre") { type = NavType.StringType })
-        ) { backStackEntry ->
+        composable("perfil_cliente/{nombre}") { backStackEntry ->
             val nombre = backStackEntry.arguments?.getString("nombre") ?: "Cliente"
+
             PerfilClienteScreen(
                 nombre = nombre,
                 onLogout = {
@@ -79,11 +86,27 @@ fun AppNavegacion() {
                     }
                 },
                 onVerCarrito = { navController.navigate("carrito") },
-                // 👇 NUEVO: ahora abre la caja de comentarios
                 onVerComentarios = { navController.navigate("comentarios") },
-                viewModel = carritoViewModel
+                onEditarPerfil = { navController.navigate("perfil_editar") },
+                viewModel = carritoViewModel,
+                perfilViewModel = perfilViewModel
             )
         }
+
+        // 🟢 Pantalla para editar/eliminar el perfil
+        composable("perfil_editar") {
+            PerfilEditarScreen(
+                onBack = { navController.popBackStack() },
+                onCuentaEliminada = {
+                    // Si se elimina la cuenta, mandamos al login y limpiamos el back stack
+                    navController.navigate("login") {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
+                viewModel = perfilViewModel
+            )
+        }
+
 
         // 🟢 Pantalla de Comentarios
         composable("comentarios") {

@@ -5,20 +5,22 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.outlined.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.ecoviajes.model.Producto
 import com.example.ecoviajes.ui.components.PhotoActions
 import com.example.ecoviajes.viewmodel.CarritoViewModel
+import com.example.ecoviajes.viewmodel.PerfilViewModel
 import com.example.ecoviajes.showBasicNotification
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,18 +29,30 @@ fun PerfilClienteScreen(
     nombre: String = "Cliente",
     onLogout: () -> Unit = {},
     onVerCarrito: () -> Unit = {},
-    onVerComentarios: () -> Unit = {}, // 👈 NUEVO parámetro
-    viewModel: CarritoViewModel
+    onVerComentarios: () -> Unit = {},
+    onEditarPerfil: () -> Unit = {},
+    viewModel: CarritoViewModel,
+    perfilViewModel: PerfilViewModel
 ) {
     val productos by viewModel.productos.collectAsState()
     val cargando by viewModel.cargando.collectAsState()
     val carrito by viewModel.carrito.collectAsState()
 
+    // 🔹 Nombre dinámico desde PerfilViewModel
+    val perfilUi by perfilViewModel.uiState.collectAsState()
+    val nombreMostrado = if (perfilUi.nombre.isNotBlank()) perfilUi.nombre else nombre
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Hola, $nombre") },
+                title = { Text("Hola, $nombreMostrado") },
                 actions = {
+                    // 👤 Botón de perfil
+                    IconButton(onClick = onEditarPerfil) {
+                        Icon(Icons.Default.Person, contentDescription = "Mi perfil")
+                    }
+
+                    // 🛒 Botón de carrito con badge
                     BadgedBox(badge = {
                         val total = carrito.sumOf { it.cantidad }
                         if (total > 0) Badge { Text(total.toString()) }
@@ -53,7 +67,7 @@ fun PerfilClienteScreen(
     ) { padding ->
         Column(Modifier.padding(padding)) {
 
-            // 🟩 Tarjeta superior con acciones del usuario
+            // 🟩 Tarjeta superior con acciones del usuario (TU DISEÑO ORIGINAL)
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -68,12 +82,11 @@ fun PerfilClienteScreen(
                     Spacer(Modifier.height(6.dp))
                     Text("Comparte una foto o elige una de tu galería.")
                     Spacer(Modifier.height(12.dp))
-                    PhotoActions { /* Puedes dejarlo vacío o hacer algo con la URI si quieres */ }
+                    PhotoActions { /* puedes dejarlo vacío */ }
 
                     Spacer(Modifier.height(12.dp))
 
-
-                    // 🟩 Botón: Deja tu comentario ✍️
+                    // ✍️ Comentarios
                     Button(
                         onClick = onVerComentarios,
                         modifier = Modifier.fillMaxWidth(),
@@ -86,7 +99,7 @@ fun PerfilClienteScreen(
 
                     Spacer(Modifier.height(8.dp))
 
-                    // 🟥 Botón: Cerrar sesión
+                    // 🔴 Cerrar sesión
                     OutlinedButton(
                         onClick = onLogout,
                         modifier = Modifier.fillMaxWidth(),
@@ -109,26 +122,46 @@ fun PerfilClienteScreen(
 
             when {
                 cargando && productos.isEmpty() -> {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
                         CircularProgressIndicator()
                     }
                 }
+
                 productos.isEmpty() -> {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Text("No hay experiencias disponibles")
                     }
                 }
+
                 else -> {
                     LazyColumn(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(productos, key = { it.id }) { producto ->
+                        items(
+                            items = productos,
+                            key = { it.id }
+                        ) { producto ->
                             ItemExperiencia(
                                 producto = producto,
-                                cantidadEnCarrito = carrito.find { it.producto.id == producto.id }?.cantidad ?: 0,
-                                onAgregar = { if (producto.stock > 0) viewModel.agregarAlCarrito(producto) },
-                                onRemover = { viewModel.removerDelCarrito(producto) }
+                                cantidadEnCarrito = carrito.find { it.producto.id == producto.id }?.cantidad
+                                    ?: 0,
+                                onAgregar = {
+                                    if (producto.stock > 0) viewModel.agregarAlCarrito(producto)
+                                },
+                                onRemover = {
+                                    viewModel.removerDelCarrito(producto)
+                                }
                             )
                         }
                     }
@@ -152,6 +185,8 @@ private fun ItemExperiencia(
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(Modifier.padding(16.dp)) {
+
+            // Imagen si tiene URL
             if (producto.imagen.isNotBlank()) {
                 AsyncImage(
                     model = producto.imagen,
@@ -182,11 +217,24 @@ private fun ItemExperiencia(
 
             when {
                 producto.stock <= 0 ->
-                    Text("Sin cupos", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
+                    Text(
+                        "Sin cupos",
+                        color = MaterialTheme.colorScheme.error,
+                        fontWeight = FontWeight.Bold
+                    )
+
                 producto.stock < 10 ->
-                    Text("Últimos ${producto.stock} cupos", color = Color(0xFFFF9800), fontWeight = FontWeight.Bold)
+                    Text(
+                        "Últimos ${producto.stock} cupos",
+                        color = Color(0xFFFF9800),
+                        fontWeight = FontWeight.Bold
+                    )
+
                 else ->
-                    Text("Cupos disponibles: ${producto.stock}", color = Color.Gray)
+                    Text(
+                        "Cupos disponibles: ${producto.stock}",
+                        color = Color.Gray
+                    )
             }
 
             Spacer(Modifier.height(10.dp))
