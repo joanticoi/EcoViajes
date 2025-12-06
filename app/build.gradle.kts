@@ -91,4 +91,20 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
 
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("androidx.test.ext:junit:1.1.5")
+    testImplementation("androidx.test.espresso:espresso-core:3.5.1")
+
+    // Kotest para un estilo de testing BDD (Behavior-Driven Development)
+    testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
+    testImplementation("io.kotest:kotest-assertions-core:5.8.0")
+
+    // MockK para crear "mocks" (objetos falsos) en tus tests
+    testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation("io.mockk:mockk-android:1.13.8")
+
+    // Coroutines para pruebas (necesario por usar Dispatchers.setMain)
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
+
+
 }
