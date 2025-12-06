@@ -2,8 +2,9 @@ package com.example.ecoviajes
 
 
 
-import com.example.nombrecaso.model.ItemCarrito
-import com.example.nombrecaso.model.Producto
+import com.example.ecoviajes.model.ItemCarrito
+import com.example.ecoviajes.model.Producto
+import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
@@ -35,27 +36,26 @@ class CarritoBusinessLogicTest : FunSpec({
             totalCalculado shouldBe totalEsperado
         }
     }
+// Test para verificar que no se pueden agregar productos sin stock
+test("no se puede agregar producto con stock cero") {
+    val productoSinStock = Producto("1", "Sin Stock", 10.0, "", 0)
+    val carrito = mutableListOf<ItemCarrito>()
 
-    // Test para verificar que no se pueden agregar productos sin stock
-    test("no se puede agregar producto con stock cero") {
-        val productoSinStock = Producto("1", "Sin Stock", 10.0, "", 0)
-        val carrito = mutableListOf<ItemCarrito>()
+    // Simulación de intento de agregar producto sin stock
+    val puedeAgregar = productoSinStock.stock > 0
 
-        // Simulación de intento de agregar producto sin stock
-        val puedeAgregar = productoSinStock.stock > 0
+    puedeAgregar shouldBe false
+}
 
-        puedeAgregar shouldBe false
+// Test para cálculo de subtotal por item
+test("el subtotal por item debe ser precio por cantidad") {
+    checkAll(Arb.double(1.0, 100.0), Arb.int(1, 5)) { precio, cantidad ->
+        val producto = Producto("1", "Test", precio, "", 10)
+        val item = ItemCarrito(producto, cantidad)
+
+        val subtotal = item.producto.precio * item.cantidad
+
+        subtotal shouldBe (precio * cantidad)
     }
-
-    // Test para cálculo de subtotal por item
-    test("el subtotal por item debe ser precio por cantidad") {
-        checkAll(Arb.double(1.0, 100.0), Arb.int(1, 5)) { precio, cantidad ->
-            val producto = Producto("1", "Test", precio, "", 10)
-            val item = ItemCarrito(producto, cantidad)
-
-            val subtotal = item.producto.precio * item.cantidad
-
-            subtotal shouldBe (precio * cantidad)
-        }
-    }
+}
 })

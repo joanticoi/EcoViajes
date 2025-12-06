@@ -44,6 +44,11 @@ android {
     buildFeatures {
         compose = true
     }
+    testOptions {
+        unitTests.all {
+            it.useJUnitPlatform()
+        }
+    }
 }
 
 dependencies {
@@ -105,6 +110,33 @@ dependencies {
 
     // Coroutines para pruebas (necesario por usar Dispatchers.setMain)
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
+    testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
+    testImplementation("io.kotest:kotest-assertions-core:5.8.0")
+    testImplementation("io.mockk:mockk:1.13.9")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
 
+        testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
+        testImplementation("io.kotest:kotest-assertions-core:5.8.0")
 
-}
+        // ⚠️ ESTA ES LA QUE FALTA para que funcione 'checkAll' y 'Arb'
+        testImplementation("io.kotest:kotest-property:5.8.0")
+
+        testImplementation("io.mockk:mockk:1.13.9")
+        testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation("io.kotest:kotest-runner-junit5:5.9.0")
+    testImplementation("io.kotest:kotest-assertions-core:5.9.0")
+    testImplementation("io.kotest:kotest-property:5.9.0") // Necesario para 'checkAll' y 'Arb'
+
+    // --- MOCKK (Para mockk, every, verify) ---
+    testImplementation("io.mockk:mockk:1.13.10")
+    androidTestImplementation("io.mockk:mockk-android:1.13.10") // Si corres tests en dispositivo
+
+    // --- COROUTINES TEST (Para runTest, advanceUntilIdle) ---
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
+
+    // --- COMPOSE TESTING (Para createComposeRule en tests unitarios locales) ---
+    // Esto permite correr tests de UI básicos sin emulador (usando Robolectric)
+    testImplementation("androidx.compose.ui:ui-test-junit4:1.6.8")
+    testImplementation("org.robolectric:robolectric:4.12.1")
+    }
+

@@ -1,5 +1,13 @@
 package com.example.ecoviajes
 
+// 1. Importaciones de tus modelos
+import com.example.ecoviajes.model.ItemCarrito
+import com.example.ecoviajes.model.Producto
+
+// 2. Importaciones de Kotest
+import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
+
 class CarritoIntegrationTest : BehaviorSpec({
 
     // Test de flujo completo del carrito

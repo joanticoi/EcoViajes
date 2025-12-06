@@ -1,4 +1,20 @@
-package com.example.ecoviajes.viewmodel 
+package com.example.ecoviajes.viewmodel
+
+// 1. Importaciones de tus Modelos (Asegúrate de que el paquete sea correcto)
+import com.example.ecoviajes.model.ItemCarrito
+import com.example.ecoviajes.model.Producto
+
+// 2. Importaciones de Kotest (BehaviorSpec, shouldBe, etc.)
+import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
+
+// 3. Importaciones de Mockk (mockk, every)
+import io.mockk.every
+import io.mockk.mockk
+
+// 4. Importaciones de Corrutinas y StateFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.test.runTest
 
 class CarritoViewModelTest : BehaviorSpec({
 
