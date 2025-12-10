@@ -9,41 +9,27 @@ import java.util.*
 class UsuarioRepository {
     private val db = FirebaseFirestore.getInstance()
 
-    // 🔹 Actualizar SOLO el nombre
-    suspend fun actualizarNombreUsuario(correo: String, nuevoNombre: String): Boolean {
+    // 🔹 Registrar usuario en colección "usuario"
+    suspend fun registroUsuario(
+        correo: String,
+        clave: String,
+        nombre: String,
+        telefono: String,
+        foto: String = ""
+    ): Boolean{
         return try {
-            println("DEBUG: buscando usuario con correo = $correo")
-            val snapshot = db.collection("usuario")
-                .whereEqualTo("correo", correo)
-                .get()
-                .await()
+            println("DEBUG registroUsuario: intentando registrar $correo")
 
-            println("DEBUG: encontrados ${snapshot.size()} documentos")
-
-            if (snapshot.isEmpty) return false
-
-            snapshot.documents.forEach { doc ->
-                println("DEBUG: actualizando doc ${doc.id} a nombre = $nuevoNombre")
-                doc.reference.update("nombre", nuevoNombre).await()
-            }
-            true
-        } catch (e: Exception) {
-            println("DEBUG ERROR actualizarNombreUsuario: ${e.message}")
-            false
-        }
-    }
-
-
-    suspend fun registroUsuario(correo: String, clave: String, nombre: String): Boolean {
-        return try {
             // Verificar si el correo ya existe
             val querySnapshot = db.collection("usuario")
                 .whereEqualTo("correo", correo)
                 .get()
                 .await()
 
+            println("DEBUG registroUsuario: encontrados ${querySnapshot.size()} usuarios con ese correo")
+
             if (!querySnapshot.isEmpty) {
-                // Si ya existe el correo, no registrar
+                println("DEBUG registroUsuario: correo ya existe, no se registra")
                 return false
             }
 
@@ -52,12 +38,16 @@ class UsuarioRepository {
                 "clave" to clave,
                 "nombre" to nombre,
                 "rol" to "cliente",
+                "telefono" to telefono,
+                "foto" to foto,
                 "fechaCreacion" to getCurrentDate()
             )
 
             db.collection("usuario").add(userData).await()
+            println("DEBUG registroUsuario: usuario registrado correctamente en Firestore")
             true
         } catch (e: Exception) {
+            println("DEBUG ERROR registroUsuario: ${e.message}")
             false
         }
     }
@@ -65,10 +55,13 @@ class UsuarioRepository {
     // 🔹 Obtener datos del usuario por correo
     suspend fun obtenerUsuarioPorCorreo(correo: String): User? {
         return try {
+            println("DEBUG obtenerUsuarioPorCorreo: buscando $correo")
             val snapshot = db.collection("usuario")
                 .whereEqualTo("correo", correo)
                 .get()
                 .await()
+
+            println("DEBUG obtenerUsuarioPorCorreo: encontrados ${snapshot.size()} docs")
 
             if (!snapshot.isEmpty) {
                 val doc = snapshot.documents[0]
@@ -76,13 +69,35 @@ class UsuarioRepository {
                     correo = doc.getString("correo") ?: "",
                     clave = doc.getString("clave") ?: "",
                     nombre = doc.getString("nombre") ?: "",
-                    rol = doc.getString("rol") ?: "cliente"
+                    rol = doc.getString("rol") ?: "cliente",
+                    telefono = doc.getString("telefono") ?: "",
+                    foto = doc.getString("foto") ?: ""
                 )
             } else {
                 null
             }
         } catch (e: Exception) {
+            println("DEBUG ERROR obtenerUsuarioPorCorreo: ${e.message}")
             null
+        }
+    }
+
+    // 🔹 Actualizar SOLO el nombre
+    suspend fun actualizarNombreUsuario(correo: String, nuevoNombre: String): Boolean {
+        return try {
+            val snapshot = db.collection("usuario")
+                .whereEqualTo("correo", correo)
+                .get()
+                .await()
+
+            if (snapshot.isEmpty) return false
+
+            snapshot.documents.forEach { doc ->
+                doc.reference.update("nombre", nuevoNombre).await()
+            }
+            true
+        } catch (e: Exception) {
+            false
         }
     }
 

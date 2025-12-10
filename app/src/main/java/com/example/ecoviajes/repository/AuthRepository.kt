@@ -5,13 +5,13 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import  kotlinx.coroutines.tasks.await
 
-class AuthRepository{
+class AuthRepository {
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
 
 
-    suspend fun login(correo: String, clave: String): User?{
-        return try{
+    suspend fun login(correo: String, clave: String): User? {
+        return try {
             //intentar autenticar con auth
             when {
                 correo == "admin@ecoviajes.cl" -> {
@@ -23,37 +23,41 @@ class AuthRepository{
                         rol = "admin"
                     )
                 }
-            else -> {
-                //Autenticacion con la coleccion usuario de Firestore
-                loginWithFirestore(correo,clave)
-            }
+
+                else -> {
+                    //Autenticacion con la coleccion usuario de Firestore
+                    loginWithFirestore(correo, clave)
+                }
             }
 
-        } catch (e: Exception){
+        } catch (e: Exception) {
             null
         }
     }
 
     private suspend fun loginWithFirestore(correo: String, clave: String): User? {
-        return try{
-            val query =db.collection("usuario")
+        return try {
+            val query = db.collection("usuario")
                 .whereEqualTo("correo", correo)
                 .whereEqualTo("clave", clave)
                 .get()
                 .await()
 
-            if (!query.isEmpty){
+            if (!query.isEmpty) {
                 val doc = query.documents[0]
                 User(
-                    correo = doc.getString("correo") ?: " ",
-                    nombre = doc.getString("nombre") ?: "cliente",
+                    correo = doc.getString("correo") ?: "",
                     clave = doc.getString("clave") ?: "",
-                    rol = doc.getString("rol") ?: "cliente"
+                    nombre = doc.getString("nombre") ?: "",
+                    rol = doc.getString("rol") ?: "cliente",
+                    telefono = doc.getString("telefono") ?: "",
+                    foto = doc.getString("foto") ?: ""
                 )
-            }else null
-        }catch(e: Exception){
-    null
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
         }
     }
-
 }

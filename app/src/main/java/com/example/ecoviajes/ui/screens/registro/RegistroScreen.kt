@@ -40,6 +40,8 @@ fun RegistroScreen(
     var correo by remember { mutableStateOf("") }
     var clave by remember { mutableStateOf("") }
     var confirmarClave by remember { mutableStateOf("") }
+    var telefono by remember { mutableStateOf("") }     // 👈 NUEVO
+    var foto by remember { mutableStateOf("") }         // 👈 NUEVO (URL opcional)
 
     var nombreError by remember { mutableStateOf("") }
     var correoError by remember { mutableStateOf("") }
@@ -59,6 +61,7 @@ fun RegistroScreen(
         if (registroExitoso) {
             Toast.makeText(context, "Registro exitoso", Toast.LENGTH_SHORT).show()
             onRegisterSuccess()
+            viewModel.limpiarRegistro()
         }
     }
 
@@ -123,7 +126,11 @@ fun RegistroScreen(
                 supportingText = {
                     when {
                         nombreError.isNotEmpty() -> Text(nombreError, color = Color.Red, fontSize = 12.sp)
-                        nombreFocused -> Text("Ingrese su nombre y apellido tal como figuran en su documento.", color = Color.Gray, fontSize = 12.sp)
+                        nombreFocused -> Text(
+                            "Ingrese su nombre y apellido tal como figuran en su documento.",
+                            color = Color.Gray,
+                            fontSize = 12.sp
+                        )
                     }
                 },
                 singleLine = true,
@@ -149,13 +156,41 @@ fun RegistroScreen(
                 supportingText = {
                     when {
                         correoError.isNotEmpty() -> Text(correoError, color = Color.Red, fontSize = 12.sp)
-                        correoFocused -> Text("Ejemplo: nombre@ecoviajes.cl o contacto@empresa.com", color = Color.Gray, fontSize = 12.sp)
+                        correoFocused -> Text(
+                            "Ejemplo: nombre@ecoviajes.cl o contacto@empresa.com",
+                            color = Color.Gray,
+                            fontSize = 12.sp
+                        )
                     }
                 },
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
                     .onFocusChanged { correoFocused = it.isFocused },
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next)
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Teléfono (opcional)
+            OutlinedTextField(
+                value = telefono,
+                onValueChange = { telefono = it },
+                label = { Text("Teléfono (opcional)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next)
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Foto (URL opcional)
+            OutlinedTextField(
+                value = foto,
+                onValueChange = { foto = it },
+                label = { Text("Foto (URL opcional)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next)
             )
 
@@ -176,7 +211,11 @@ fun RegistroScreen(
                 supportingText = {
                     when {
                         claveError.isNotEmpty() -> Text(claveError, color = Color.Red, fontSize = 12.sp)
-                        claveFocused -> Text("Debe contener mínimo 6 caracteres y combinar letras o números.", color = Color.Gray, fontSize = 12.sp)
+                        claveFocused -> Text(
+                            "Debe contener mínimo 6 caracteres y combinar letras o números.",
+                            color = Color.Gray,
+                            fontSize = 12.sp
+                        )
                     }
                 },
                 singleLine = true,
@@ -203,7 +242,11 @@ fun RegistroScreen(
                 supportingText = {
                     when {
                         confirmarClaveError.isNotEmpty() -> Text(confirmarClaveError, color = Color.Red, fontSize = 12.sp)
-                        confirmarFocused -> Text("Repita la misma contraseña para confirmar su registro.", color = Color.Gray, fontSize = 12.sp)
+                        confirmarFocused -> Text(
+                            "Repita la misma contraseña para confirmar su registro.",
+                            color = Color.Gray,
+                            fontSize = 12.sp
+                        )
                     }
                 },
                 singleLine = true,
@@ -221,9 +264,20 @@ fun RegistroScreen(
                     if (nombreError.isEmpty() && correoError.isEmpty() &&
                         claveError.isEmpty() && confirmarClaveError.isEmpty()
                     ) {
-                        viewModel.registroUsuario(correo, clave, confirmarClave, nombre)
+                        viewModel.registroUsuario(
+                            correo = correo,
+                            clave = clave,
+                            confirmarClave = confirmarClave,
+                            nombre = nombre,
+                            telefono = telefono,
+                            foto = foto
+                        )
                     } else {
-                        Toast.makeText(context, "Corrija los errores antes de continuar", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            "Corrija los errores antes de continuar",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 },
                 modifier = Modifier

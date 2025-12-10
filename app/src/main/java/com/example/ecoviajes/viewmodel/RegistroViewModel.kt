@@ -19,9 +19,16 @@ class RegistroViewModel : ViewModel() {
     private val _errorMensaje = MutableStateFlow("")
     val errorMensaje: StateFlow<String> = _errorMensaje
 
-    fun registroUsuario(correo: String, clave: String, confirmarClave: String, nombre: String) {
+    fun registroUsuario(
+        correo: String,
+        clave: String,
+        confirmarClave: String,
+        nombre: String,
+        telefono: String,
+        foto: String
+    ) {
         if (correo.isEmpty() || clave.isEmpty() || confirmarClave.isEmpty() || nombre.isEmpty()) {
-            _errorMensaje.value = "Todos los campos son obligatorios"
+            _errorMensaje.value = "Correo, nombre y contraseña son obligatorios"
             return
         }
 
@@ -39,11 +46,19 @@ class RegistroViewModel : ViewModel() {
         _errorMensaje.value = ""
 
         viewModelScope.launch {
-            val exitoso = repositorio.registroUsuario(correo, clave, nombre)
+            val exitoso = repositorio.registroUsuario(
+                correo = correo,
+                clave = clave,
+                nombre = nombre,
+                telefono = telefono,
+                foto = foto
+            )
+
             _cargando.value = false
             _registroExitoso.value = exitoso
+
             if (!exitoso) {
-                _errorMensaje.value = "Error al registrar usuario"
+                _errorMensaje.value = "Error al registrar usuario (puede que el correo ya exista)"
             }
         }
     }
