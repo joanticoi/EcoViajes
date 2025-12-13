@@ -95,6 +95,8 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+    implementation("com.google.firebase:firebase-storage-ktx")
+
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("androidx.test.ext:junit:1.1.5")
@@ -138,5 +140,6 @@ dependencies {
     // Esto permite correr tests de UI básicos sin emulador (usando Robolectric)
     testImplementation("androidx.compose.ui:ui-test-junit4:1.6.8")
     testImplementation("org.robolectric:robolectric:4.12.1")
+
     }
 

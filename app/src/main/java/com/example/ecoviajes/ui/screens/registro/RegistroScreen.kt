@@ -1,6 +1,8 @@
 package com.example.ecoviajes.ui.screens.registro
 
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -27,6 +29,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ecoviajes.ui.components.LogoEcoviajes
 import com.example.ecoviajes.ui.components.ecoviajesBackground
 import com.example.ecoviajes.viewmodel.RegistroViewModel
+import android.net.Uri
+import coil.compose.AsyncImage
+
 
 @Composable
 fun RegistroScreen(
@@ -41,7 +46,7 @@ fun RegistroScreen(
     var clave by remember { mutableStateOf("") }
     var confirmarClave by remember { mutableStateOf("") }
     var telefono by remember { mutableStateOf("") }     // 👈 NUEVO
-    var foto by remember { mutableStateOf("") }         // 👈 NUEVO (URL opcional)
+    var fotoUri by remember { mutableStateOf<Uri?>(null) }        // 👈 NUEVO (URL opcional)
 
     var nombreError by remember { mutableStateOf("") }
     var correoError by remember { mutableStateOf("") }
@@ -56,6 +61,11 @@ fun RegistroScreen(
     val cargando by viewModel.cargando.collectAsState()
     val registroExitoso by viewModel.registroExitoso.collectAsState()
     val errorMensaje by viewModel.errorMensaje.collectAsState()
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        fotoUri = uri // Se obtiene la URI de la imagen seleccionada
+    }
 
     LaunchedEffect(registroExitoso) {
         if (registroExitoso) {
@@ -183,16 +193,25 @@ fun RegistroScreen(
             )
 
             Spacer(modifier = Modifier.height(12.dp))
+            // 📸 Foto de perfil (opcional)
+            Button(
+                onClick = { imagePickerLauncher.launch("image/*") },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(if (fotoUri == null) "Elegir foto de perfil (opcional)" else "Cambiar foto")
+            }
 
-            // Foto (URL opcional)
-            OutlinedTextField(
-                value = foto,
-                onValueChange = { foto = it },
-                label = { Text("Foto (URL opcional)") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next)
-            )
+            if (fotoUri != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                AsyncImage(
+                    model = fotoUri,
+                    contentDescription = "Foto seleccionada",
+                    modifier = Modifier
+                        .size(120.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+            }
+
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -259,6 +278,8 @@ fun RegistroScreen(
 
             Spacer(modifier = Modifier.height(28.dp))
 
+            Spacer(modifier = Modifier.height(18.dp))
+
             Button(
                 onClick = {
                     if (nombreError.isEmpty() && correoError.isEmpty() &&
@@ -270,14 +291,10 @@ fun RegistroScreen(
                             confirmarClave = confirmarClave,
                             nombre = nombre,
                             telefono = telefono,
-                            foto = foto
+                            fotoUri = fotoUri
                         )
                     } else {
-                        Toast.makeText(
-                            context,
-                            "Corrija los errores antes de continuar",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Toast.makeText(context, "Corrija los errores antes de continuar", Toast.LENGTH_SHORT).show()
                     }
                 },
                 modifier = Modifier
@@ -299,6 +316,7 @@ fun RegistroScreen(
                     Text("Registrarse", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
             }
+
 
             Spacer(modifier = Modifier.height(18.dp))
 
