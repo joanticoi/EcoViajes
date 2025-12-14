@@ -117,6 +117,54 @@ class UsuarioRepository {
             false
         }
     }
+    suspend fun actualizarPerfil(
+        correo: String,
+        nuevoNombre: String,
+        nuevoTelefono: String,
+        nuevaFotoUrl: String
+    ): Boolean {
+        return try {
+            val snapshot = db.collection("usuario")
+                .whereEqualTo("correo", correo)
+                .get()
+                .await()
+
+            if (snapshot.isEmpty) return false
+
+            snapshot.documents.forEach { doc ->
+                doc.reference.update(
+                    mapOf(
+                        "nombre" to nuevoNombre,
+                        "telefono" to nuevoTelefono,
+                        "foto" to nuevaFotoUrl
+                    )
+                ).await()
+            }
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+    suspend fun actualizarClaveUsuario(correo: String, nuevaClave: String): Boolean {
+        return try {
+            val snapshot = db.collection("usuario")
+                .whereEqualTo("correo", correo)
+                .get()
+                .await()
+
+            if (snapshot.isEmpty) return false
+
+            snapshot.documents.forEach { doc ->
+                doc.reference.update("clave", nuevaClave).await()
+            }
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+
+
 
     private fun getCurrentDate(): String {
         val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())

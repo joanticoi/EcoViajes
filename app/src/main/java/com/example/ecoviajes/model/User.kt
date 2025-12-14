@@ -10,3 +10,4 @@ data class User(
     val telefono: String = "",
     val foto: String = ""
 )
+
