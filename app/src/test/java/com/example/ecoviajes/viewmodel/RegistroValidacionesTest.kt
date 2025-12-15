@@ -1,5 +1,6 @@
 package com.example.ecoviajes.viewmodel
 
+import android.R
 import com.google.firebase.firestore.FirebaseFirestore
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -44,7 +45,9 @@ class RegistroValidacionesTest : BehaviorSpec({
                 correo = "",
                 clave = "123456",
                 confirmarClave = "123456",
-                nombre = "Juan"
+                nombre = "Juan",
+                telefono = "",
+                fotoUri = null
             )
 
             then("debe mostrar error de campos obligatorios") {
@@ -57,7 +60,9 @@ class RegistroValidacionesTest : BehaviorSpec({
                 correo = "juan@ecoviajes.cl",
                 clave = "secret123",
                 confirmarClave = "otraCosa", // Diferente
-                nombre = "Juan"
+                nombre = "Juan",
+                telefono = "",
+                fotoUri = null
             )
 
             then("debe detectar que no coinciden") {
@@ -70,7 +75,10 @@ class RegistroValidacionesTest : BehaviorSpec({
                 correo = "juan@ecoviajes.cl",
                 clave = "123", // Menos de 6 caracteres
                 confirmarClave = "123",
-                nombre = "Juan"
+                nombre = "Juan",
+                telefono = "",
+                fotoUri = null
+
             )
 
             then("debe pedir un mínimo de caracteres") {
@@ -79,8 +87,15 @@ class RegistroValidacionesTest : BehaviorSpec({
         }
 
         `when`("se limpian los errores") {
-            // Generamos un error primero
-            viewModel.registroUsuario("", "", "", "")
+            // Generamos un error primero, pasando todos los argumentos requeridos
+            viewModel.registroUsuario(
+                correo = "",
+                clave = "",
+                confirmarClave = "",
+                nombre = "",
+                telefono = "",  // <-- Argumento añadido
+                fotoUri = null  // <-- Argumento añadido
+            )
 
             // Ejecutamos la función de limpieza
             viewModel.limpiarRegistro()
@@ -89,5 +104,6 @@ class RegistroValidacionesTest : BehaviorSpec({
                 viewModel.errorMensaje.value shouldBe ""
             }
         }
+
     }
 })
