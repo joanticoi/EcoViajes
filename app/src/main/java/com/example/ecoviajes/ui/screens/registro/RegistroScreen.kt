@@ -1,6 +1,8 @@
 package com.example.ecoviajes.ui.screens.registro
 
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -27,6 +29,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ecoviajes.ui.components.LogoEcoviajes
 import com.example.ecoviajes.ui.components.ecoviajesBackground
 import com.example.ecoviajes.viewmodel.RegistroViewModel
+import android.net.Uri
+import coil.compose.AsyncImage
+
 
 @Composable
 fun RegistroScreen(
@@ -40,6 +45,8 @@ fun RegistroScreen(
     var correo by remember { mutableStateOf("") }
     var clave by remember { mutableStateOf("") }
     var confirmarClave by remember { mutableStateOf("") }
+    var telefono by remember { mutableStateOf("") }     // 👈 NUEVO
+    var fotoUri by remember { mutableStateOf<Uri?>(null) }        // 👈 NUEVO (URL opcional)
 
     var nombreError by remember { mutableStateOf("") }
     var correoError by remember { mutableStateOf("") }
@@ -54,11 +61,17 @@ fun RegistroScreen(
     val cargando by viewModel.cargando.collectAsState()
     val registroExitoso by viewModel.registroExitoso.collectAsState()
     val errorMensaje by viewModel.errorMensaje.collectAsState()
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        fotoUri = uri // Se obtiene la URI de la imagen seleccionada
+    }
 
     LaunchedEffect(registroExitoso) {
         if (registroExitoso) {
             Toast.makeText(context, "Registro exitoso", Toast.LENGTH_SHORT).show()
             onRegisterSuccess()
+            viewModel.limpiarRegistro()
         }
     }
 
@@ -123,7 +136,11 @@ fun RegistroScreen(
                 supportingText = {
                     when {
                         nombreError.isNotEmpty() -> Text(nombreError, color = Color.Red, fontSize = 12.sp)
-                        nombreFocused -> Text("Ingrese su nombre y apellido tal como figuran en su documento.", color = Color.Gray, fontSize = 12.sp)
+                        nombreFocused -> Text(
+                            "Ingrese su nombre y apellido tal como figuran en su documento.",
+                            color = Color.Gray,
+                            fontSize = 12.sp
+                        )
                     }
                 },
                 singleLine = true,
@@ -149,7 +166,11 @@ fun RegistroScreen(
                 supportingText = {
                     when {
                         correoError.isNotEmpty() -> Text(correoError, color = Color.Red, fontSize = 12.sp)
-                        correoFocused -> Text("Ejemplo: nombre@ecoviajes.cl o contacto@empresa.com", color = Color.Gray, fontSize = 12.sp)
+                        correoFocused -> Text(
+                            "Ejemplo: nombre@ecoviajes.cl o contacto@empresa.com",
+                            color = Color.Gray,
+                            fontSize = 12.sp
+                        )
                     }
                 },
                 singleLine = true,
@@ -158,6 +179,39 @@ fun RegistroScreen(
                     .onFocusChanged { correoFocused = it.isFocused },
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next)
             )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Teléfono (opcional)
+            OutlinedTextField(
+                value = telefono,
+                onValueChange = { telefono = it },
+                label = { Text("Teléfono (opcional)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next)
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+            // 📸 Foto de perfil (opcional)
+            Button(
+                onClick = { imagePickerLauncher.launch("image/*") },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(if (fotoUri == null) "Elegir foto de perfil (opcional)" else "Cambiar foto")
+            }
+
+            if (fotoUri != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                AsyncImage(
+                    model = fotoUri,
+                    contentDescription = "Foto seleccionada",
+                    modifier = Modifier
+                        .size(120.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+            }
+
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -176,7 +230,11 @@ fun RegistroScreen(
                 supportingText = {
                     when {
                         claveError.isNotEmpty() -> Text(claveError, color = Color.Red, fontSize = 12.sp)
-                        claveFocused -> Text("Debe contener mínimo 6 caracteres y combinar letras o números.", color = Color.Gray, fontSize = 12.sp)
+                        claveFocused -> Text(
+                            "Debe contener mínimo 6 caracteres y combinar letras o números.",
+                            color = Color.Gray,
+                            fontSize = 12.sp
+                        )
                     }
                 },
                 singleLine = true,
@@ -203,7 +261,11 @@ fun RegistroScreen(
                 supportingText = {
                     when {
                         confirmarClaveError.isNotEmpty() -> Text(confirmarClaveError, color = Color.Red, fontSize = 12.sp)
-                        confirmarFocused -> Text("Repita la misma contraseña para confirmar su registro.", color = Color.Gray, fontSize = 12.sp)
+                        confirmarFocused -> Text(
+                            "Repita la misma contraseña para confirmar su registro.",
+                            color = Color.Gray,
+                            fontSize = 12.sp
+                        )
                     }
                 },
                 singleLine = true,
@@ -216,12 +278,21 @@ fun RegistroScreen(
 
             Spacer(modifier = Modifier.height(28.dp))
 
+            Spacer(modifier = Modifier.height(18.dp))
+
             Button(
                 onClick = {
                     if (nombreError.isEmpty() && correoError.isEmpty() &&
                         claveError.isEmpty() && confirmarClaveError.isEmpty()
                     ) {
-                        viewModel.registroUsuario(correo, clave, confirmarClave, nombre)
+                        viewModel.registroUsuario(
+                            correo = correo,
+                            clave = clave,
+                            confirmarClave = confirmarClave,
+                            nombre = nombre,
+                            telefono = telefono,
+                            fotoUri = fotoUri
+                        )
                     } else {
                         Toast.makeText(context, "Corrija los errores antes de continuar", Toast.LENGTH_SHORT).show()
                     }
@@ -245,6 +316,7 @@ fun RegistroScreen(
                     Text("Registrarse", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
             }
+
 
             Spacer(modifier = Modifier.height(18.dp))
 
